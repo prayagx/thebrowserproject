@@ -9,24 +9,31 @@ export default function CommandPalette() {
     const { createTab, tabs, isCommandPaletteOpen, setCommandPaletteOpen } = useBrowserStore();
 
     useEffect(() => {
+        let isShortcutRegistered = false;
+
         const togglePalette = () => {
-            setCommandPaletteOpen(!isCommandPaletteOpen);
+            const state = useBrowserStore.getState();
+            state.setCommandPaletteOpen(!state.isCommandPaletteOpen);
         };
 
         const registerShortcut = async () => {
+            if (isShortcutRegistered) return;
             try {
                 await register('CommandOrControl+T', togglePalette);
                 // Also add Cmd+L for focusing the URL bar
                 await register('CommandOrControl+L', togglePalette);
+                isShortcutRegistered = true;
             } catch (e) {
                 console.error("Failed to register shortcut:", e);
             }
         };
 
         const unregisterShortcut = async () => {
+            if (!isShortcutRegistered) return;
             try {
                 await unregister('CommandOrControl+T');
                 await unregister('CommandOrControl+L');
+                isShortcutRegistered = false;
             } catch (e) {
                 // Ignore errors on unregister
             }
@@ -54,7 +61,7 @@ export default function CommandPalette() {
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
-                setCommandPaletteOpen(false);
+                useBrowserStore.getState().setCommandPaletteOpen(false);
             }
             // Fallback for regular DOM focus
             if ((e.metaKey || e.ctrlKey) && (e.code === 'KeyT' || e.code === 'KeyL')) {
@@ -70,7 +77,7 @@ export default function CommandPalette() {
             unregisterShortcut();
             if (unlistenFocus) unlistenFocus();
         };
-    }, [isCommandPaletteOpen, setCommandPaletteOpen]);
+    }, []);
 
     if (!isCommandPaletteOpen) return null;
 

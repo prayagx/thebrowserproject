@@ -93,10 +93,11 @@ export default function WebviewContainer({ tabId, url, isActive }: WebviewContai
         // Also sync on window resize directly to catch flexbox shifts
         window.addEventListener('resize', syncBounds);
 
-        // Also sync visibility based on React props
         if (webviewRef.current) {
             if (isEffectivelyActive) {
                 webviewRef.current.show().catch(() => {});
+                // explicitly request focus when shown so user can interact immediately
+                webviewRef.current.setFocus().catch(() => {});
                 syncBounds();
             } else {
                 webviewRef.current.setPosition(new LogicalPosition(-9999, -9999)).catch(() => {});
@@ -123,7 +124,7 @@ export default function WebviewContainer({ tabId, url, isActive }: WebviewContai
     return (
         <div 
             ref={containerRef} 
-            className="w-full h-full"
+            className="absolute inset-0"
             style={{ 
                 visibility: isEffectivelyActive ? 'visible' : 'hidden', 
                 pointerEvents: 'none' // The actual interactivity is handled by the Tauri overlay
