@@ -73,12 +73,14 @@ export default function WebviewContainer({ tabId, url, isActive }: WebviewContai
 
         return () => {
             mounted = false;
+            // Only explicitly close the native webview when the component completely unmounts (tab is deleted)
             if (webviewRef.current) {
                 webviewRef.current.close().catch(console.error);
                 webviewRef.current = null;
             }
         };
-    }, [isEffectivelyActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array: Only run on mount/unmount
 
     // Handle updates to bounds and visibility
     useEffect(() => {
