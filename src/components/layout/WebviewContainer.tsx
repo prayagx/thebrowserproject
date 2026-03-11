@@ -75,7 +75,12 @@ export default function WebviewContainer({ tabId, url, isActive }: WebviewContai
             mounted = false;
             // Only explicitly close the native webview when the component completely unmounts (tab is deleted)
             if (webviewRef.current) {
-                webviewRef.current.close().catch(console.error);
+                // Force it offscreen and hide before closing to prevent visual ghosting on macOS/Windows
+                const wv = webviewRef.current;
+                wv.setPosition(new LogicalPosition(-9999, -9999))
+                  .then(() => wv.hide())
+                  .then(() => wv.close())
+                  .catch(console.error);
                 webviewRef.current = null;
             }
         };
