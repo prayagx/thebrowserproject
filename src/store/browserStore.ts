@@ -126,6 +126,8 @@ export const useBrowserStore = create<BrowserState>((set, get) => ({
             tabs: state.tabs.map((tab) =>
                 tab.id === id ? { ...tab, isArchived: !tab.isArchived } : tab
             ),
+            activeTabId: state.activeTabId === id ? null : state.activeTabId,
+            splitTabId: state.splitTabId === id ? null : state.splitTabId,
         }));
     },
 
